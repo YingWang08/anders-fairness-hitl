@@ -1,0 +1,5 @@
+Model,Accuracy,DI,EOD,AOD
+LR,74.2,0.54,0.28,0.22
+DL,78.6,0.58,0.24,0.18
+Debiased-HITL,71.3,0.75,0.12,0.09
+Our framework,78.3,0.81,0.08,0.06

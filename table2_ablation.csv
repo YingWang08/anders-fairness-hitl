@@ -1,0 +1,5 @@
+Model,R2_mean,R2_std,RMSE_mean,RMSE_std,DI_mean,DI_std,EOD_mean,EOD_std,AOD_mean,AOD_std
+Our framework (full),0.86,0.01,9.2,0.3,0.88,0.01,0.05,0.01,0.04,0.01
+w/o Human Ethical Decision,0.78,0.02,11.5,0.4,0.68,0.02,0.16,0.01,0.12,0.01
+w/o Multi-Option Generation,0.83,0.01,9.6,0.3,0.83,0.01,0.07,0.01,0.05,0.01
+w/o Feedback & Update,0.81,0.01,10.1,0.3,0.79,0.01,0.11,0.01,0.08,0.01
