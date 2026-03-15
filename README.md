@@ -159,7 +159,7 @@ BibTeX entry:
 All datasets generated or analyzed during this study are included in this published article and its supplementary information files. The simulated agricultural dataset is created by the script `data/generate_agricultural_data.py`. The German Credit dataset is publicly available from the UCI Machine Learning Repository and is downloaded automatically by `data/download_german_credit.py`. The complete source code is archived in the following public repositories:
 
 - GitHub: [https://github.com/YingWang08/anders-fairness-hitl](https://github.com/YingWang08/anders-fairness-hitl)
-- Figshare: [https://doi.org/10.6084/m9.figshare.31672465](https://doi.org/10.6084/m9.figshare.31672465)
+- Figshare: [https://doi.org/10.6084/m9.figshare.31742617](https://doi.org/10.6084/m9.figshare.31742617)
 
 ## Contact
 
