@@ -1,0 +1,139 @@
+# Python 编译文件
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyz
+*.pyzw
+
+# 分发/打包文件
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+
+# 虚拟环境
+venv/
+env/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE 配置文件
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter Notebook 检查点
+.ipynb_checkpoints/
+*.ipynb_checkpoints/
+
+# 本地环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 日志文件
+*.log
+*.out
+*.err
+
+# 数据文件（不上传，通过 Figshare 提供）
+*.csv
+*.data
+*.db
+*.sqlite
+*.sqlite3
+*.h5
+*.hdf5
+*.parquet
+*.feather
+*.pkl
+*.pickle
+
+# 生成的图片文件（只保留生成脚本，不保留图片）
+figures/output/
+*.tif
+*.tiff
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.eps
+*.svg
+
+# 实验结果/输出文件
+results/
+*.npy
+*.npz
+*.mat
+*.pth
+*.pt
+*.ckpt
+*.h5
+
+# 临时文件
+tmp/
+temp/
+*.tmp
+*.temp
+
+# 操作系统生成的文件
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows 系统文件
+desktop.ini
+*.cab
+*.msi
+*.msm
+*.msp
+
+# 编辑器临时文件
+*~
+*.bak
+*.swp
+*.swo
+*.*
+
+# 测试覆盖率报告
+htmlcov/
+.coverage
+.coverage.*
+*.cover
+.coverage.lcov
+coverage.xml
+
+# pytest
+.pytest_cache/
+__pytest__.py
+test_outputs/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# pytype
+.pytype/
+
+# 开发环境特定文件
+*.dev
+*.local
+*.development
