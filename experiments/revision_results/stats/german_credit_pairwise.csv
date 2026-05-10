@@ -1,0 +1,13 @@
+comparison,metric,FE-HITL_M,LR_M,mean_diff,diff_CI_lo,diff_CI_hi,t_stat,df,p_raw,Cohen's_d,DL_M,Debiased-HITL_M,p_BH,p_Bonferroni,sig_BH_0.05,sig_Bonf_0.05
+FE-HITL vs LR,Accuracy,0.7181,0.7444,-0.0263,-0.034,-0.0187,-7.0235,29,0.0,-1.2823,,,,1e-06,False,True
+FE-HITL vs LR,DI,1.0324,1.5276,-0.4952,-0.6792,-0.3113,-5.5056,29,6e-06,-1.0052,,,,7.5e-05,False,True
+FE-HITL vs LR,EOD,0.1079,0.1529,-0.045,-0.0853,-0.0048,-2.2878,29,0.029632,-0.4177,,,,0.355581,False,False
+FE-HITL vs LR,AOD,0.0441,0.1053,-0.0612,-0.0837,-0.0387,-5.5653,29,5e-06,-1.0161,,,,6.3e-05,False,True
+FE-HITL vs DL,Accuracy,0.7181,,-0.005,-0.0097,-0.0003,-2.1864,29,0.037006,-0.3992,0.7231,,,0.444067,False,False
+FE-HITL vs DL,DI,1.0324,,-0.3182,-0.4818,-0.1545,-3.9768,29,0.000426,-0.7261,1.3505,,,0.005113,False,True
+FE-HITL vs DL,EOD,0.1079,,0.0163,-0.0181,0.0506,0.9689,29,0.340625,0.1769,0.0916,,,1.0,False,False
+FE-HITL vs DL,AOD,0.0441,,-0.0252,-0.0446,-0.0058,-2.6535,29,0.012791,-0.4845,0.0693,,,0.153489,False,False
+FE-HITL vs Debiased-HITL,Accuracy,0.7181,,0.0,0.0,0.0,,29,,0.0,,0.7181,,,False,False
+FE-HITL vs Debiased-HITL,DI,1.0324,,0.0,0.0,0.0,,29,,0.0,,1.0324,,,False,False
+FE-HITL vs Debiased-HITL,EOD,0.1079,,0.0,0.0,0.0,,29,,0.0,,0.1079,,,False,False
+FE-HITL vs Debiased-HITL,AOD,0.0441,,0.0,0.0,0.0,,29,,0.0,,0.0441,,,False,False

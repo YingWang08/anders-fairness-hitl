@@ -1,0 +1,6 @@
+metric,F_stat,df_between,df_within,p_anova,eta2,sig_0.05
+R2,73.6659,3,116,0.0,0.6558,True
+RMSE,82.3874,3,116,0.0,0.6806,True
+DI,379.0385,3,116,0.0,0.9074,True
+EOD,93.0946,3,116,0.0,0.7065,True
+AOD,45.7295,3,116,0.0,0.5418,True

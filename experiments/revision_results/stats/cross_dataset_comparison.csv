@@ -1,0 +1,7 @@
+dataset,model,metric,mean,std,CI95_lo,CI95_hi,n_seeds
+Agricultural(bias=0.30),FE-HITL,DI,0.864,0.0399,0.8491,0.8789,30
+Agricultural(bias=0.30),FE-HITL,EOD,0.0252,0.0186,0.0183,0.0321,30
+Agricultural(bias=0.30),FE-HITL,AOD,0.036,0.0252,0.0266,0.0455,30
+German Credit,FE-HITL,DI,1.0324,0.2214,0.9497,1.115,30
+German Credit,FE-HITL,EOD,0.1079,0.0774,0.079,0.1367,30
+German Credit,FE-HITL,AOD,0.0441,0.0442,0.0276,0.0606,30

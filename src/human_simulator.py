@@ -28,13 +28,16 @@ class HumanSimulator:
             # Fallback: first option
             return 0, "fallback (no valid options)"
 
-        # Rule 2: Prefer options that restore DI to >=0.85 with efficiency loss <=10%
+        # Rule 2: Among valid options, prefer the one that meets DI>=0.85
+        # with the smallest efficiency loss (best fairness-accuracy trade-off).
+        # Since options are now interpolations toward the fair reference,
+        # "efficiency_loss" directly reflects the correction magnitude —
+        # choosing the smallest acceptable loss keeps R2 high.
         best_idx = None
         best_score = -np.inf
         for i, opt in enumerate(valid_options):
-            if opt['di'] >= 0.85 and opt['efficiency_loss'] <= 0.1:
-                # Among those, choose smallest efficiency loss
-                score = -opt['efficiency_loss']
+            if opt['di'] >= 0.85 and opt['efficiency_loss'] <= 0.15:
+                score = -opt['efficiency_loss']   # prefer smaller correction
                 if score > best_score:
                     best_score = score
                     best_idx = i
@@ -42,6 +45,18 @@ class HumanSimulator:
         if best_idx is not None:
             return best_idx, "fairness+lowcost"
 
-        # Rule 3: Otherwise choose option with highest DI
+        # Rule 3: No option meets both criteria — pick the one with DI>=0.80
+        # that has the smallest efficiency loss (balanced fallback).
+        for i, opt in enumerate(valid_options):
+            if opt['di'] >= 0.80:
+                score = -opt['efficiency_loss']
+                if score > best_score:
+                    best_score = score
+                    best_idx = i
+
+        if best_idx is not None:
+            return best_idx, "min_cost_fair"
+
+        # Rule 4: Last resort — highest DI
         best_idx = np.argmax([opt['di'] for opt in valid_options])
         return best_idx, "max_fairness"

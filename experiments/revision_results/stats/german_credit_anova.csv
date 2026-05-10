@@ -1,0 +1,5 @@
+metric,F_stat,df_between,df_within,p_anova,eta2,sig_0.05
+Accuracy,10.4726,3,116,4e-06,0.2131,True
+DI,25.6354,3,116,0.0,0.3987,True
+EOD,3.357,3,116,0.021307,0.0799,True
+AOD,9.7282,3,116,9e-06,0.201,True

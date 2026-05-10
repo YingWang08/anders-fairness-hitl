@@ -8,9 +8,14 @@ def load_agricultural_data(data_dir='data'):
     val = pd.read_csv(f'{data_dir}/agricultural_val.csv')
     test = pd.read_csv(f'{data_dir}/agricultural_test.csv')
 
-    # Features (excluding target and sensitive attributes)
+    # Features: objective farm characteristics + historical allocation
+    # historical_allocation carries the regional bias signal, allowing
+    # models to encounter (and the FE-HITL framework to correct) the
+    # injected disparity.  Omitting it would make bias_rate invisible
+    # to all models and render the sensitivity analysis meaningless.
     feature_cols = ['arable_land', 'labor_force', 'farming_years', 'yield_3y_avg',
-                    'irrigation_resources', 'fertilizer_subsidy']
+                    'irrigation_resources', 'fertilizer_subsidy',
+                    'historical_allocation']   # <- added for W2 revision
 
     X_train = train[feature_cols].values
     y_train = train['target_allocation'].values
