@@ -2,7 +2,7 @@
 
 This repository contains the complete code and data for the PLOS ONE paper:
 
-**"From Günther Anders to Engineerable Fairness: A Fairness-Enhanced Human-in-the-Loop Framework for High-Risk AI Decision-Making"**  
+**"Translating Günther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI"**  
 by Wenjun Tian¹, Ying Wang²  
 ¹ School of Marxism, Northeastern University, Shenyang, China  
 ² School of Computer Science and Engineering, Beijing University of Agriculture, Beijing, China  
@@ -10,7 +10,7 @@ Corresponding author: Wenjun Tian (tianwenjunneu@outlook.com)
 
 ## Overview
 
-We propose a Fairness-Enhanced Human-in-the-Loop (FE-HITL) framework that translates Günther Anders’ philosophical diagnoses (human obsolescence, Promethean shame, technological imperialism) into three concrete engineering compensation mechanisms: forced human intervention, explainable multi‑option generation, and value arbitration. The framework is validated on two high‑risk decision scenarios: an agricultural resource allocation simulation dataset (10,000 farmers) and the UCI German Credit dataset (1,000 samples). Experimental results show that FE‑HITL substantially improves algorithmic fairness (Disparate Impact, Equal Opportunity Difference) while maintaining or even enhancing predictive performance (R², accuracy). Ablation experiments confirm that all three compensation mechanisms are indispensable.
+We propose a simulation-based Fairness-Enhanced Human-in-the-Loop (FE-HITL) framework where human decisions are simulated via rule-based proxies derived from agricultural policy documents. The framework translates Günther Anders' philosophical diagnoses (human obsolescence, Promethean shame, technological imperialism) into three concrete engineering compensation mechanisms: forced human intervention, explainable multi‑option generation, and value arbitration. The framework is validated on two high‑risk decision scenarios: an agricultural resource allocation simulation dataset (10,000 farmers) and the UCI German Credit dataset (1,000 samples). All experiments were run with 30 independent random seeds and results are reported with 95% confidence intervals and effect sizes. Experimental results show that FE‑HITL substantially improves algorithmic fairness (Disparate Impact, Equal Opportunity Difference) while maintaining predictive performance (R², accuracy). Ablation experiments confirm the essential roles of forced human intervention and multi‑option generation; the feedback‑and‑update module is designed for continuous deployment with distribution shifts and its validation is left for future longitudinal studies.
 
 All code and data are publicly available under the MIT license to ensure full reproducibility.
 
@@ -36,14 +36,25 @@ All code and data are publicly available under the MIT license to ensure full re
 │   ├── utils.py                              # Random seed setting, evaluation metrics
 │   ├── models/
 │   │   ├── baseline_lr.py                    # Logistic / Linear Regression baseline
-│   │   ├── baseline_dl.py                    # Deep Learning baseline (PyTorch)
+│   │   ├── baseline_dl.py                    # Deep Learning baseline (scikit-learn MLP)
 │   │   ├── debiased_hitl.py                  # Reimplementation of Debiased‑HITL (Zhang et al. 2021)
 │   │   └── fe_hitl.py                         # Proposed FE-HITL framework
 │   └── ablation.py                            # Helpers for ablation experiments
 ├── experiments/
-│   ├── run_agricultural.py                    # Main experiment on agricultural dataset (Table 1)
-│   ├── run_credit.py                           # Main experiment on German Credit dataset (Table 3)
-│   └── run_ablation.py                         # Ablation study (Table 2)
+│   ├── run_sensitivity_standalone.py          # Full revision experiments (Bias sensitivity, Intervention sensitivity, Ablation)
+│   ├── run_german_credit.py                   # German Credit classification experiment (30 seeds)
+│   ├── run_stats_supplement.py                # Statistical analyses (paired t-tests, BH correction, Cohen's d, ANOVA)
+│   └── quick.py                               # Quick validation test
+├── revision_results/
+│   ├── bias_sensitivity_raw.csv               # Raw results: bias injection rate sensitivity (10%–40%)
+│   ├── bias_sensitivity_summary.csv           # Summary: bias injection rate sensitivity
+│   ├── interv_sensitivity_raw.csv             # Raw results: intervention ratio sensitivity (10%–100%)
+│   ├── interv_sensitivity_summary.csv         # Summary: intervention ratio sensitivity
+│   ├── ablation_raw.csv                       # Raw results: ablation study
+│   ├── ablation_summary.csv                   # Summary: ablation study
+│   ├── german_credit_raw.csv                  # Raw results: German Credit classification
+│   ├── german_credit_summary.csv              # Summary: German Credit classification
+│   └── stats/                                 # Statistical analysis outputs
 ├── figures/
 │   ├── generate_fig1.py                        # Schematic of the FE-HITL framework (Figure 1)
 │   ├── generate_fig2.py                        # Bar chart for agricultural dataset (Figure 2)
@@ -62,7 +73,7 @@ All dependencies are listed in `requirements.txt`. Install them with:
 pip install -r requirements.txt
 ```
 
-The code has been tested with Python 3.9, PyTorch 1.10.0, scikit‑learn 1.0.0, and the versions specified in the file.
+The code has been tested with Python 3.9, scikit-learn 1.0.0, and the versions specified in the file.
 
 ## Data
 
@@ -90,35 +101,39 @@ The script saves the processed version as `data/german_credit_processed.csv`. It
 
 ## Reproducing Experiments
 
-All experiments are designed to be run from the repository root. They print the main results (metrics) to the console; you may redirect the output or modify the scripts to save them as CSV files.
+All experiments are designed to be run from the repository root.
 
-### 1. Agricultural Resource Allocation (Regression)
+### Revised experiments (30 seeds)
 
-```bash
-python experiments/run_agricultural.py
-```
+All experiments in the revised manuscript were run with 30 independent random seeds (42–71) to ensure statistical rigor. The main experimental results and statistical summaries are available in the `revision_results/` directory.
 
-This script evaluates four models: Logistic Regression (LR), Deep Learning (DL), Debiased‑HITL (reproduced), and FE‑HITL. It outputs R², RMSE, Disparate Impact (DI), Equal Opportunity Difference (EOD), and Average Odds Difference (AOD), matching Table 1 in the paper.
-
-### 2. German Credit Approval (Classification)
+#### 1. Full revision experiments (Bias sensitivity, Intervention sensitivity, Ablation)
 
 ```bash
-python experiments/run_credit.py
+python experiments/run_sensitivity_standalone.py
 ```
 
-Outputs accuracy, DI, EOD, and AOD for the same four models, matching Table 3.
+This script runs all three experiments required for the revised manuscript, matching Tables 1–2 in the paper.
 
-### 3. Ablation Study
+#### 2. German Credit classification experiment
 
 ```bash
-python experiments/run_ablation.py
+python experiments/run_german_credit.py
 ```
 
-Runs the FE‑HITL framework with and without each of the three compensation mechanisms (forced human intervention, multi‑option generation, feedback & update). The results correspond to Table 2.
+Outputs accuracy, DI, EOD, and AOD for four models (LR, DL, Debiased‑HITL, FE‑HITL), matching Table 3.
+
+#### 3. Statistical analyses
+
+```bash
+python experiments/run_stats_supplement.py
+```
+
+Computes paired t-tests, Benjamini-Hochberg correction, Cohen's d, ANOVA with η², seed sensitivity analysis, and cross-dataset comparisons. Output files are saved to `revision_results/stats/`.
 
 ## Reproducing Figures
 
-After running the experiments, you can generate the figures used in the paper. All figure scripts save the output as TIFF files (300 dpi) in the repository root (or current working directory).
+After running the experiments, you can generate the figures used in the paper. All figure scripts save the output as TIFF files (600 dpi) in the repository root (or current working directory).
 
 ```bash
 python figures/generate_fig1.py      # Framework schematic (Figure 1)
@@ -139,14 +154,14 @@ This project is licensed under the MIT License – see the [LICENSE](LICENSE) fi
 If you use this code or data in your research, please cite our PLOS ONE paper:
 
 ```
-Tian W, Wang Y. From Günther Anders to Engineerable Fairness: A Fairness‑Enhanced Human‑in‑the‑Loop Framework for High‑Risk AI Decision‑Making. PLoS ONE. 2026; … (in press).
+Tian W, Wang Y. Translating Günther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI. PLoS ONE. 2026; … (in press).
 ```
 
 BibTeX entry:
 
 ```bibtex
 @article{tian2026anders,
-  title   = {From G{"u}nther Anders to Engineerable Fairness: A Fairness‑Enhanced Human‑in‑the‑Loop Framework for High‑Risk AI Decision‑Making},
+  title   = {Translating G{"u}nther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI},
   author  = {Tian, Wenjun and Wang, Ying},
   journal = {PLoS ONE},
   year    = {2026},
