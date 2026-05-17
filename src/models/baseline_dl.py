@@ -1,12 +1,13 @@
 """
 baseline_dl.py — scikit-learn implementation of the deep learning baseline.
-Compatible with all PyTorch versions; no torch import needed.
+Includes StandardScaler for feature normalization.
 Retains DeepLearningModel as a stub for backwards compatibility.
 """
 
 import torch.nn as nn
 import numpy as np
 from sklearn.neural_network import MLPRegressor, MLPClassifier
+from sklearn.preprocessing import StandardScaler
 from ..utils import set_seed
 
 
@@ -17,7 +18,6 @@ class DeepLearningModel(nn.Module):
     """
     def __init__(self, input_dim, hidden_dims=[128, 64, 32], dropout=0.2, task='regression'):
         super().__init__()
-        # Do nothing — PyTorch layers are never created
         self.task = task
         self.input_dim = input_dim
         self.hidden_dims = hidden_dims
@@ -26,8 +26,8 @@ class DeepLearningModel(nn.Module):
 
 class BaselineDL:
     """
-    Deep learning baseline using scikit-learn's multi-layer perceptron.
-    API mirrors the original PyTorch version exactly.
+    Deep learning baseline using scikit-learn's multi-layer perceptron
+    with StandardScaler for feature normalization.
     """
     def __init__(self, input_dim, task='regression', hidden_dims=None,
                  dropout=0.2, lr=0.001, batch_size=32, epochs=500, patience=10,
@@ -42,10 +42,12 @@ class BaselineDL:
         self.epochs = epochs
         self.patience = patience
         self.random_seed = random_seed
-        self.model = None        # will hold MLPRegressor / MLPClassifier
+        self.model = None
+        self.scaler = StandardScaler()  # 新增：特征标准化
 
     def fit(self, X_train, y_train, X_val=None, y_val=None):
-        X_train = np.asarray(X_train, dtype=np.float64)
+        # 标准化训练数据
+        X_train = self.scaler.fit_transform(np.asarray(X_train, dtype=np.float64))
         y_train = np.asarray(y_train, dtype=np.float64).ravel()
 
         common_kwargs = dict(
@@ -65,9 +67,9 @@ class BaselineDL:
         else:
             self.model = MLPRegressor(**common_kwargs)
 
-        # Use validation set for early stopping
         if X_val is not None:
-            X_val = np.asarray(X_val, dtype=np.float64)
+            # 标准化验证数据
+            X_val = self.scaler.transform(np.asarray(X_val, dtype=np.float64))
             y_val = np.asarray(y_val, dtype=np.float64).ravel()
             X_combined = np.vstack([X_train, X_val])
             y_combined = np.hstack([y_train, y_val])
@@ -78,14 +80,14 @@ class BaselineDL:
             self.model.early_stopping = False
             self.model.fit(X_train, y_train)
 
-        # Print convergence info (mirrors PyTorch early stopping message)
         if hasattr(self.model, 'n_iter_'):
             print(f"MLP converged at iteration {self.model.n_iter_}")
         elif hasattr(self.model, 'n_epochs_'):
             print(f"MLP converged after {self.model.n_epochs_} epochs")
 
     def predict(self, X):
-        X = np.asarray(X, dtype=np.float64)
+        # 预测时也进行标准化
+        X = self.scaler.transform(np.asarray(X, dtype=np.float64))
         preds = self.model.predict(X)
         if self.task == 'classification':
             return preds.astype(int)
