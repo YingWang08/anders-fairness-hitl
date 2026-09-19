@@ -108,11 +108,12 @@ def bh(rows, family):
 
 
 def sha256(path):
-    h = hashlib.sha256()
+    """SHA-256 of the file content with line endings normalised to LF.
+    Git stores these CSVs with LF, but a Windows checkout (core.autocrlf=true)
+    has CRLF; normalising makes the hash identical on Windows, Linux and macOS."""
     with open(path, 'rb') as f:
-        for chunk in iter(lambda: f.read(1 << 16), b''):
-            h.update(chunk)
-    return h.hexdigest()
+        data = f.read().replace(b'\r\n', b'\n')
+    return hashlib.sha256(data).hexdigest()
 
 
 def git_commit():
@@ -143,7 +144,7 @@ def main():
                 raise FileNotFoundError(p)
             return None
         df = pd.read_csv(p)
-        inputs[p] = {'sha256': sha256(p), 'rows': int(len(df))}
+        inputs[p.replace(os.sep, '/')] = {'sha256_lf_normalised': sha256(p), 'rows': int(len(df))}
         return df
 
     bias = load(args.agri_dir, 'bias_sensitivity_raw.csv')
@@ -336,7 +337,9 @@ def main():
             'descriptive_ci': ('mean +/- 1.96 SD/sqrt(n)' if args.ci == 'normal'
                                else 'mean +/- t_{n-1,0.975} SD/sqrt(n)'),
             'contrast_ci': 't_{n-1}, consistent with the paired t-test',
-            'effect_size': "Cohen's dz", 'multiple_testing': 'BH within declared families'},
+            'effect_size': "Cohen's dz", 'multiple_testing': 'BH within declared families',
+            'input_hashes': 'SHA-256 of file content with line endings normalised to LF '
+                            '(identical on Windows, Linux and macOS checkouts)'},
         'seed_sets': {'main_30': '42-71', 'supporting_15': '42-56',
                       'agri_cv': 'dataset seed 42; StratifiedKFold(5, random_state=42); training seeds 42-51',
                       'credit': '42-91 (50)'},
