@@ -4,14 +4,18 @@ Includes StandardScaler for feature normalization.
 Retains DeepLearningModel as a stub for backwards compatibility.
 """
 
-import torch.nn as nn
+try:  # only needed for the legacy stub class below; no experiment uses torch
+    import torch.nn as nn
+    _StubBase = nn.Module
+except ImportError:
+    _StubBase = object
 import numpy as np
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from ..utils import set_seed
 
 
-class DeepLearningModel(nn.Module):
+class DeepLearningModel(_StubBase):
     """
     Stub class for backward compatibility with debiased_hitl.py and fe_hitl.py.
     Actual training is performed by MLPRegressor/MLPClassifier in BaselineDL.

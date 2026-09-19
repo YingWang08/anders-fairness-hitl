@@ -1,9 +1,22 @@
-numpy>=1.21.0
-pandas>=1.3.0
-scikit-learn>=1.0.0
-torch>=1.10.0
-matplotlib>=3.4.0
-seaborn>=0.11.0
-shap>=0.40.0
-lime>=0.2.0
-requests>=2.25.0
+# ---------------------------------------------------------------------------
+# Verified environment (Python 3.12.3). With exactly these versions,
+# experiments/run_r3_additions.py re-executed the agricultural pipeline and
+# matched every deposited per-seed value it checked (210 rows, max |diff|
+# 1.1e-16); regen_stats.py then reproduced 17/17 values quoted by Reviewer #4.
+#
+# The authors' original runs used Python 3.14 (src/__pycache__/*.cpython-314).
+# If you keep that environment, append its `pip freeze` below and confirm that
+# r3_tables/reviewer_number_check.csv still reports 17/17.
+#
+# run_credit_clean.py downloads German Credit from openml.org (fetch_openml,
+# data_id=31); it was not re-executed in the verification environment.
+# Re-run it once with these pins and diff credit_main_raw.csv.
+# ---------------------------------------------------------------------------
+numpy==2.4.4
+pandas==3.0.2
+scipy==1.17.1
+scikit-learn==1.8.0
+statsmodels==0.15.0     # DIRECT dependency (BH correction); missing from the R2 list
+# torch is NOT required: src/utils.py and src/models/baseline_dl.py import it optionally.
+# Optional, figures only (figures/figures_all.py):
+# matplotlib

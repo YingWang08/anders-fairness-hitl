@@ -1,0 +1,41 @@
+--- experiments/run_credit_clean.py	2026-09-18 06:29:48.580825582 +0000
++++ /tmp/patched/run_credit_clean.py	2026-09-18 10:49:04.083123387 +0000
+@@ -1,6 +1,6 @@
+ """
+-run_credit_revised.py
+-=====================
++run_credit_clean.py  (German Credit, 50 seeds; the R2/R3 credit entry point)
++============================================================================
+ German Credit dataset experiments — Revised for PLOS ONE R2 submission.
+ 
+ Key changes from run_credit_clean.py
+@@ -9,7 +9,8 @@
+    *same* trained MLP instance. All performance differences arise solely from
+    post-processing correction strategies, not from different random initialisations.
+ 
+-2. DEBIASED-HITL (reproduced from Zhang et al. 2021):
++2. 'DEBIASED-HITL' = fixed-ratio proportional post-processing baseline
++   (author-designed heuristic; the previously cited source could not be verified):
+    Proportional boost/shrink with a fixed intervention ratio = 0.10.
+    Operates separately on DI < 0.8 (boost unprivileged) and DI > 1.25 (shrink
+    unprivileged), mimicking the original paper's post-processing design.
+@@ -61,7 +62,7 @@
+ #  CONFIGURATION
+ # ──────────────────────────────────────────────────────────────
+ QUICK_TEST   = False           # True = 3 seeds, for smoke-testing only
+-SEEDS_FULL   = list(range(42, 92))   # 30 seeds
++SEEDS_FULL   = list(range(42, 92))   # 50 seeds (42-91)
+ SEEDS_QUICK  = [42, 43, 44]
+ 
+ # Fairness thresholds
+@@ -599,7 +600,9 @@
+     Stratified 5-fold CV.  For each (fold, seed) combination:
+       - ONE SharedMLP is trained per (fold, seed).
+       - DL, Debiased-HITL, and FE-HITL all use that same model instance.
+-    Total evaluations: 5 folds × 30 seeds = 150 per method.
++    Total evaluations: 5 folds × 50 seeds = 250 per method. ONE fixed partition
++    (random_state=42): the 250 fold-seed pairs are NOT independent observations;
++    see inference_fixed.py for appropriate inference.
+     """
+     print("\n" + "="*65)
+     print(f"  5-FOLD CROSS-VALIDATION — {n_folds} folds × {len(seeds)} seeds")

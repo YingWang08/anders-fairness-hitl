@@ -723,7 +723,7 @@ def run_correction_diagnostic(seeds, X_all, y_all, s_all, n_diag=5):
 # ──────────────────────────────────────────────────────────────
 
 def main():
-    mode = "QUICK TEST" if QUICK_TEST else "FULL RUN (30 seeds)"
+    mode = "QUICK TEST" if QUICK_TEST else "FULL RUN (50 seeds)"
     print(f"\nGerman Credit Revision Experiments — {mode}")
     print(f"Output directory: {OUT_DIR}/")
     print("="*65)

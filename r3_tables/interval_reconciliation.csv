@@ -1,0 +1,5 @@
+task,interval,applies_to,role,guarantee
+credit,"trigger [0.80, 1.25]",DI of the base predictions,decides whether a correction is attempted,none
+credit,"candidate guard [0.75, 1.333]",DI a candidate would produce,admissibility of candidates; wider than the trigger so a candidate landing just outside the trigger band is not discarded,none on outputs: if no candidate is admissible the unchanged predictions are returned
+agriculture,trigger DI < 0.80,DI at the monitoring threshold,decides whether Algorithm 1 runs,none
+agriculture,target DI >= 0.85; DI <= 1.25; efficiency loss <= 10 %,each candidate,"fairness-prioritisation, non-discrimination, efficiency rules","none on outputs: fallback takes the largest admissible DI, which may be < 0.85 or < 0.80"

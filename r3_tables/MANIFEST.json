@@ -1,0 +1,66 @@
+{
+  "generated_utc": "2026-09-18T23:40:21.530950+00:00",
+  "git_commit": "fa79a9f10093e6a13a6954d4ce408a026ea6a176",
+  "environment": {
+    "python": "3.14.3",
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "scipy": "1.17.1"
+  },
+  "conventions": {
+    "contrast_direction": "treatment - comparator (FE-HITL - X; Full - variant)",
+    "pairing": "seed; unmatched seeds raise an error",
+    "descriptive_ci": "mean +/- 1.96 SD/sqrt(n)",
+    "contrast_ci": "t_{n-1}, consistent with the paired t-test",
+    "effect_size": "Cohen's dz",
+    "multiple_testing": "BH within declared families"
+  },
+  "seed_sets": {
+    "main_30": "42-71",
+    "supporting_15": "42-56",
+    "agri_cv": "dataset seed 42; StratifiedKFold(5, random_state=42); training seeds 42-51",
+    "credit": "42-91 (50)"
+  },
+  "checks": {
+    "FE-HITL(bias file) vs Full(ablation file) max abs diff": 0.0,
+    "reviewer numbers matched": "17/17"
+  },
+  "inputs": {
+    "experiments/revision_results\\bias_sensitivity_raw.csv": {
+      "sha256": "eae80bc7e6847434b7a1ebb0710ef79ec7f726d225b869f64faa69af707d8243",
+      "rows": 480
+    },
+    "experiments/revision_results\\ablation_raw.csv": {
+      "sha256": "b75243fe20c1179de8c5c325eb39100b50f2dc72007fe15b2ae60718c6e66965",
+      "rows": 120
+    },
+    "experiments/revision_results\\interv_sensitivity_raw.csv": {
+      "sha256": "3d7f2f9fa09348de700f197f2698963db61f8a2da790ec11b2ee2eb3b7f11ab5",
+      "rows": 240
+    },
+    "experiments/revision_results\\bias_structure_robustness_raw.csv": {
+      "sha256": "48a26bc10f2c67383d9ab2065df0655aef0225e64d02ffd4e647656383beb214",
+      "rows": 135
+    },
+    "experiments/revision_results\\binarization_sensitivity_raw.csv": {
+      "sha256": "ad751ed50c735cd9daf620bf4b945800ba1ed985d5ec10e8790852d03930faed",
+      "rows": 90
+    },
+    "experiments/revision_results\\reverse_discrimination_raw.csv": {
+      "sha256": "b8c45fe1eb9e2f1aee24803221fd6303d1f4e1555baeb44068fda464c5bc3cea",
+      "rows": 75
+    },
+    "experiments/revision_results\\kfold_cv_agri_raw.csv": {
+      "sha256": "7a916af5176da71fe41d230a469d9546a9a32e92cfe044a9a9ed0451c0246507",
+      "rows": 150
+    },
+    "experiments/credit_revision_results\\credit_main_raw.csv": {
+      "sha256": "3638dd7dd794c71ce96c958698650a26e3fd9e32d9bed8410832eb8a28b7124c",
+      "rows": 200
+    },
+    "experiments/revision_results/r3\\r3_mog_ablation_raw.csv": {
+      "sha256": "a274046af27291c628d3e8f951cdc40af0be4f5d696c758ee36e3ca013be464b",
+      "rows": 210
+    }
+  }
+}

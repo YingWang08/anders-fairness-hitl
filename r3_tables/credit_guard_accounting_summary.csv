@@ -1,0 +1,3 @@
+experiment,n,not_triggered,triggered,fallback_unchanged,final_DI_outside_guard,final_DI_outside_trigger_band,base_DI_zero
+main (50 seeds),50,11,39,5,5,8,4
+CV (250 fold x seed),250,69,181,16,14,24,6

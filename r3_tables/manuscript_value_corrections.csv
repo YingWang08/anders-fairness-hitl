@@ -1,0 +1,14 @@
+location,quantity,R2_manuscript,regenerated,source
+Results below Table 1; Fig 2 caption,DI paired difference,+0.210,+0.232,tests_agri_main.csv: mean_diff
+Results below Table 1,DI difference 95% CI,"[+0.186, +0.233]","[+0.206, +0.258]",tests_agri_main.csv: ci_low/ci_high (t-based)
+Results below Table 1; Fig 2 caption,DI t statistic,t(29) = -17.54,t(29) = +18.16,tests_agri_main.csv: t
+Results below Table 1; Fig 2 caption,DI dz,3.20,3.32,tests_agri_main.csv: dz
+Results below Table 1; Fig 2 caption,R2 BH-corrected p,0.002,1.2e-08 (report p < 0.001),tests_agri_main.csv: p_bh
+Table 4,FE-HITL |AOD| 95% CI,"[0.020, 0.050]","[0.022, 0.041]",table4_credit_main.csv
+Table 3,CI method,"t-based (e.g. Full DI [0.849, 0.879])",normal (same as Table 1),table3_ablation_R2.csv
+Table 3 / Fig 3,"""w/o MOG"" row",multi-option ablation,reduced correction strength (coef 0.2); genuine MOG ablation in Table 3b,table3b_mog_ablation_R3.csv
+Ablation text,"one-way ANOVA F(3,116)=175.8 + ""Tukey HSD with BH""",treats seeds as independent; Tukey not in code,seed-matched paired contrasts,tests_ablation_R2.csv
+Limitations,10% -> 100% trade-off,"0.668/0.724 -> 0.865/0.703 (15 seeds, unlabelled)",30-seed sweep 0.661/0.722 -> 0.864/0.702,interv_sensitivity_raw.csv
+Abstract; Results; Discussion; Conclusion,"credit CV t(249), p < 0.001, dz = -0.60",pseudo-replicated,withdraw; see credit_inference_*.csv,inference_fixed.py
+Results; Fig 4 caption,credit main t(49) tests on signed DI,ignores split overlap; signed DI,see credit_inference_B2_generalization_main.csv,inference_fixed.py
+Intervention cost; Methods,"10% setting, ~9 min",different row from headline DI,report same-row fairness+workload,fairness_cost_joint.py

@@ -1,181 +1,146 @@
-# FE-HITL: Fairness-Enhanced Human-in-the-Loop Framework
+# FE-HITL simulation code and data — R3 state (PLOS ONE PONE-D-26-12981)
 
-This repository contains the complete code and data for the PLOS ONE paper:
+> **Result of record.** Every number in the R3 manuscript comes from (i) the R2
+> experiment scripts at commit `fa79a9f`, whose scientific implementation is
+> unchanged and which Reviewer #4 independently reproduced to < 1e-14, and (ii) the
+> read-only R3 additions below. `regen_stats.py` writes
+> `r3_tables/reviewer_number_check.csv` (17/17 values quoted by Reviewer #4
+> reproduced) and `r3_tables/MANIFEST.json` (input SHA-256 hashes, library versions,
+> conventions, seed sets). If the manuscript and `r3_tables/` disagree, `r3_tables/`
+> is correct.
 
-**"Translating Günther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI"**  
-by Wenjun Tian¹, Ying Wang²  
-¹ School of Marxism, Northeastern University, Shenyang, China  
-² School of Computer Science and Engineering, Beijing University of Agriculture, Beijing, China  
-Corresponding author: Wenjun Tian (tianwenjunneu@outlook.com)
-
-## Overview
-
-We propose a simulation-based Fairness-Enhanced Human-in-the-Loop (FE-HITL) framework where human decisions are simulated via rule-based proxies derived from agricultural policy documents. The framework translates Günther Anders' philosophical diagnoses (human obsolescence, Promethean shame, technological imperialism) into three concrete engineering compensation mechanisms: forced human intervention, explainable multi‑option generation, and value arbitration. The framework is validated on two high‑risk decision scenarios: an agricultural resource allocation simulation dataset (10,000 farmers) and the UCI German Credit dataset (1,000 samples). All experiments were run with 30 independent random seeds and results are reported with 95% confidence intervals and effect sizes. Experimental results show that FE‑HITL substantially improves algorithmic fairness (Disparate Impact, Equal Opportunity Difference) while maintaining predictive performance (R², accuracy). Ablation experiments confirm the essential roles of forced human intervention and multi‑option generation; the feedback‑and‑update module is designed for continuous deployment with distribution shifts and its validation is left for future longitudinal studies.
-
-All code and data are publicly available under the MIT license to ensure full reproducibility.
-
-## Repository Structure
-
-```
-.
-├── README.md
-├── LICENSE
-├── requirements.txt
-├── data/
-│   ├── generate_agricultural_data.py      # Script to create the agricultural simulation dataset
-│   ├── download_german_credit.py          # Script to download and preprocess the German Credit dataset
-│   ├── agricultural_data_full.csv         # Generated after running the agricultural script
-│   ├── agricultural_train.csv
-│   ├── agricultural_val.csv
-│   ├── agricultural_test.csv
-│   └── german_credit_processed.csv        # Generated after running the credit download script
-├── src/
-│   ├── fairness_metrics.py                 # Functions to compute DI, EOD, AOD
-│   ├── human_simulator.py                   # Rule‑based simulated human decision maker
-│   ├── data_loader.py                       # Helper functions to load the datasets
-│   ├── utils.py                              # Random seed setting, evaluation metrics
-│   ├── models/
-│   │   ├── baseline_lr.py                    # Logistic / Linear Regression baseline
-│   │   ├── baseline_dl.py                    # Deep Learning baseline (scikit-learn MLP)
-│   │   ├── debiased_hitl.py                  # Reimplementation of Debiased‑HITL (Zhang et al. 2021)
-│   │   └── fe_hitl.py                         # Proposed FE-HITL framework
-│   └── ablation.py                            # Helpers for ablation experiments
-├── experiments/
-│   ├── run_sensitivity_standalone.py          # Full revision experiments (Bias sensitivity, Intervention sensitivity, Ablation)
-│   ├── run_german_credit.py                   # German Credit classification experiment (30 seeds)
-│   ├── run_stats_supplement.py                # Statistical analyses (paired t-tests, BH correction, Cohen's d, ANOVA)
-│   └── quick.py                               # Quick validation test
-├── revision_results/
-│   ├── bias_sensitivity_raw.csv               # Raw results: bias injection rate sensitivity (10%–40%)
-│   ├── bias_sensitivity_summary.csv           # Summary: bias injection rate sensitivity
-│   ├── interv_sensitivity_raw.csv             # Raw results: intervention ratio sensitivity (10%–100%)
-│   ├── interv_sensitivity_summary.csv         # Summary: intervention ratio sensitivity
-│   ├── ablation_raw.csv                       # Raw results: ablation study
-│   ├── ablation_summary.csv                   # Summary: ablation study
-│   ├── german_credit_raw.csv                  # Raw results: German Credit classification
-│   ├── german_credit_summary.csv              # Summary: German Credit classification
-│   └── stats/                                 # Statistical analysis outputs
-├── figures/
-│   ├── generate_fig1.py                        # Schematic of the FE-HITL framework (Figure 1)
-│   ├── generate_fig2.py                        # Bar chart for agricultural dataset (Figure 2)
-│   ├── generate_fig3.py                        # Bar chart for ablation study (Figure 3)
-│   ├── generate_fig4.py                        # Bar chart for German Credit dataset (Figure 4)
-│   └── generate_fig5.py                        # Example case workflow (Figure 5, schematic)
-└── appendix/
-    └── S1_Appendix.md                           # Detailed hyperparameters and implementation notes
-```
-
-## Requirements
-
-All dependencies are listed in `requirements.txt`. Install them with:
+## 1. Quick start
 
 ```bash
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
+
+cd experiments                            # outputs are written relative to the working directory
+python run_sensitivity_standalone.py      # 8 agricultural suites  -> experiments/revision_results/
+python run_credit_clean.py                # German Credit, 50 seeds -> experiments/credit_revision_results/ (needs openml.org)
+python run_r3_additions.py                # R3 analyses            -> experiments/revision_results/r3/ (~4 min, 1 CPU)
+cd ..
+python regen_stats.py                     # descriptive tables, agricultural tests, reviewer-number check
+python inference_fixed.py                 # German Credit inference: conditional vs generalization
+python fairness_cost_joint.py             # fairness + performance + workload on the same row
+python check_references.py --mailto you@example.org   # Crossref audit of the reference list (internet)
 ```
 
-The code has been tested with Python 3.9, scikit-learn 1.0.0, and the versions specified in the file.
+The R2 README said to run from the repository root, which writes to `./revision_results/`
+rather than the deposited `experiments/revision_results/`. Run the experiment scripts from
+`experiments/` as shown.
 
-## Data
+## 2. What changed in R3
 
-### Agricultural Simulation Dataset
-Run the following command from the repository root to generate the agricultural dataset (10,000 samples) with injected historical bias:
+| Reviewer #4 point | Change | Where |
+|---|---|---|
+| 1 statistics from one version | All tables regenerated from the deposited raw CSVs; BH family = the authors' original family; Table 4 built from German Credit data | `regen_stats.py` |
+| 2 inference design; parity objective | Primary endpoint \|DI−1\|; conditional (partition-fixed) vs generalization (corrected resampled t) analyses; `t(249)` withdrawn; guard/fallback accounting | `inference_fixed.py` |
+| 3 MOG ablation | Algorithm 1 implemented exactly as written and compared with the executed routine on 320 runs; genuine ablation against every single fixed candidate; R2 "w/o MOG" relabelled as reduced correction strength | `src/fe_hitl_r3.py`, `experiments/run_r3_additions.py` |
+| 4 F&U explanation | Per-seed order-of-evaluation evidence | `r3_fu_diagnostics.csv` |
+| 5 same-base control | FE-HITL vs the same uncorrected base model; decomposition of the R² cost vs DL | `table_same_base_agri.csv` |
+| 6 fairness and workload | Same-row reporting on the same 30 seeds, with the manuscript's assumptions (4 options × 3 s) and a sensitivity grid | `fairness_cost_joint.py` |
+| 7 citation, README, environment | Reference audit script; this README; pinned `requirements.txt`; torch made optional | `check_references.py`, `requirements.txt`, `src/utils.py` |
 
-```bash
-python data/generate_agricultural_data.py
-```
+`patches/` holds documentation-only corrections for the two R2 scripts (docstrings and
+comments; executable code verified unchanged by AST comparison).
 
-This creates four files in the `data/` folder:  
-- `agricultural_data_full.csv` (complete dataset)  
-- `agricultural_train.csv` (70% training)  
-- `agricultural_val.csv` (15% validation)  
-- `agricultural_test.csv` (15% testing)
+## 3. Entry points and seeds
 
-### German Credit Dataset
-The UCI German Credit dataset is downloaded and preprocessed automatically by:
+| # | Suite in `run_sensitivity_standalone.py` | Seeds | Output in `experiments/revision_results/` |
+|---|---|---|---|
+| 1 | `run_bias_sensitivity` (10–40 % bias) | 42–71 | `bias_sensitivity_*` (Table 1 = bias 0.30) |
+| 2 | `run_intervention_sensitivity` (10–100 %) | 42–71 | `interv_sensitivity_*` |
+| 3 | `run_ablation` | 42–71 | `ablation_*` |
+| 4 | `run_bias_structure_robustness` | 42–56 | `bias_structure_robustness_*` |
+| 5 | `run_kfold_cv` | dataset seed 42; `StratifiedKFold(5, random_state=42)`; training seeds 42–51 | `kfold_cv_agri_*` |
+| 6 | `run_reverse_discrimination` | 42–56 | `reverse_discrimination_*` |
+| 7 | `run_binarization_sensitivity` | 42–56 | `binarization_sensitivity_*` |
+| 8 | `run_intervention_cost` | 42–56 | `intervention_cost_*` |
 
-```bash
-python data/download_german_credit.py
-```
+German Credit: `run_credit_clean.py`, seeds 42–91 (50), one 5-fold partition
+(`random_state=42`) × 50 training seeds, output `experiments/credit_revision_results/`.
+Agricultural seeds each draw a new synthetic dataset (independent replicates of the
+simulated process); German Credit seeds all resample the same 1,000 rows.
 
-The script saves the processed version as `data/german_credit_processed.csv`. It contains the target variable `class` (1 = good, 0 = bad) and the sensitive attribute `gender` (1 = male, 0 = female), as described in the paper.
+## 4. Environment
 
-## Reproducing Experiments
+`requirements.txt` pins the versions with which the agricultural pipeline was re-executed
+and matched the deposited CSVs (Python 3.12.3). The original runs used Python 3.14.
+`statsmodels` is a direct dependency. `torch` is not needed: `src/utils.py` and
+`src/models/baseline_dl.py` now import it optionally (it was only seeded, never used).
+Figures need `matplotlib`.
+`requirements-lock.txt` is the exact environment (Python 3.14.3) in which all results were generated and re-verified.
 
-All experiments are designed to be run from the repository root.
+## 5. Statistical conventions
 
-### Revised experiments (30 seeds)
+- Contrast direction: treatment − comparator (FE-HITL − X; Full − variant); pairing on seed.
+- Descriptive 95 % CI: mean ± 1.96·SD/√n (normal approximation; `--ci t` for t-based).
+  Contrast CIs are t-based, consistent with the paired t-tests.
+- Benjamini–Hochberg within declared families (named in each output). Agricultural
+  headline family (the authors' original): FE-HITL − {LR, DL, Debiased-HITL} ×
+  {R², RMSE, DI, EOD, AOD} = 15.
+- German Credit (`inference_fixed.py`): (A) conditional on this dataset and partition;
+  (B1)/(B2) Nadeau–Bengio corrected resampled t (variance factor 1/J + n_test/n_train),
+  because resampled splits of one dataset overlap (5-fold training sets share 75 % of
+  rows). None of these analyses supports claims about other populations or domains.
 
-All experiments in the revised manuscript were run with 30 independent random seeds (42–71) to ensure statistical rigor. The main experimental results and statistical summaries are available in the `revision_results/` directory.
+## 6. Algorithm 1: what is enforced and what the executed code does
 
-#### 1. Full revision experiments (Bias sensitivity, Intervention sensitivity, Ablation)
+The executed agricultural routine applies the α = 1.0 candidate of Algorithm 1
+(boost = 1 + (0.8 − DI)·0.7) to the routed unprivileged cases. `src/fe_hitl_r3.py`
+implements the full loop (α ∈ {0.3, 0.5, 0.7, 1.0}) with the manuscript's decision rules
+(target DI ≥ 0.85; efficiency loss ≤ 10 % on validation data; DI ≤ 1.25; minimum
+deviation; fallback: largest admissible DI). `run_r3_additions.py` compares the two:
 
-```bash
-python experiments/run_sensitivity_standalone.py
-```
+- headline configuration (30 % bias, 100 %): identical in 30/30 seeds (α = 1.0 selected);
+- all 320 runs: identical in 300. Of 273 triggered runs, 253 select α = 1.0; 14 are ties
+  in monitored DI resolved toward a smaller α by the practicality rule; 1 smaller α already
+  meets the target; in 5 (40 % bias) α = 1.0 violates the 10 % efficiency rule (10.2–17.1 %).
 
-This script runs all three experiments required for the revised manuscript, matching Tables 1–2 in the paper.
+| Element | Status |
+|---|---|
+| Trigger DI < 0.80 | enforced |
+| Credit candidate guard [0.75, 1.333] | restricts accepted candidates only; 5/50 main-experiment seeds fell back and ended outside it |
+| Efficiency-loss bound | not evaluated by the executed agricultural routine; evaluated in `fe_hitl_r3.py` |
+| EOD threshold | not enforced anywhere (requires labels at decision time) |
+| Monitoring threshold | FE-HITL: median of its own batch predictions; metrics and Debiased-HITL: median(y_train). Aligning them changes FE-HITL DI by 0.002 |
 
-#### 2. German Credit classification experiment
+## 7. Feedback & Update
 
-```bash
-python experiments/run_german_credit.py
-```
+Unvalidated architectural component. In R2 the refit was triggered and replaced the
+model, but the returned predictions were computed before the refit, so Full and
+w/o-F&U are identical by order of evaluation. The refit builds a new `MLPRegressor`, so
+`warm_start=True` has no effect (20 iterations from a fresh initialisation). Returning
+the updated model's predictions would change all 1,500 test predictions and lower mean
+DI from 0.864 to 0.742 (`r3_fu_diagnostics.csv`); this is a hypothetical check, not a result.
 
-Outputs accuracy, DI, EOD, and AOD for four models (LR, DL, Debiased‑HITL, FE‑HITL), matching Table 3.
+## 8. Intervention denominator and workload
 
-#### 3. Statistical analyses
+`interv_frac` is a fraction of unprivileged (region A) test cases (~30 % of the test set).
+Workload figures are arithmetic from assumptions stated in the R2 manuscript (4 options
+per routed case, 3 s per option); nothing is generated per case or timed.
 
-```bash
-python experiments/run_stats_supplement.py
-```
+## 9. Disclosures
 
-Computes paired t-tests, Benjamini-Hochberg correction, Cohen's d, ANOVA with η², seed sensitivity analysis, and cross-dataset comparisons. Output files are saved to `revision_results/stats/`.
+- Agricultural data are synthetic. Thresholds (0.85 target, 10 % efficiency loss, 30 %
+  bias) are heuristic modelling assumptions unless a source and passage is cited.
+- German Credit DI uses the model's positive class, which in the OpenML encoding is
+  "bad credit"; DI > 1 means women are predicted "bad" more often.
+- "Debiased-HITL" is an author-designed fixed-ratio proportional baseline; the previously
+  cited source could not be verified.
 
-## Reproducing Figures
+## 10. Superseded or unused files
 
-After running the experiments, you can generate the figures used in the paper. All figure scripts save the output as TIFF files (600 dpi) in the repository root (or current working directory).
+Not used by any reported result: `experiments/run_agricultural.py`, `run_ablation.py`,
+`run_credit.py`, `run_german_credit.py` (older 30-seed credit run), `run_sensitivity.py`,
+`run_statistical.py`, `run_stats_supplement.py`; top-level CSV/TXT files in
+`experiments/`; `experiments/results/`; `experiments/revision_results/stats/` (older
+statistics from an earlier run, e.g. DL DI 0.6543); `src/models/fe_hitl.py`,
+`src/models/debiased_hitl.py`, `src/human_simulator.py`, `src/data_loader.py`;
+`data/*.csv` (experiments generate data in memory). `.gitignore.txt` is not a valid
+ignore file name (rename to `.gitignore`); this is why `.idea/` and `__pycache__/` were committed.
 
-```bash
-python figures/generate_fig1.py      # Framework schematic (Figure 1)
-python figures/generate_fig2.py      # Agricultural dataset comparison (Figure 2)
-python figures/generate_fig3.py      # Ablation study (Figure 3)
-python figures/generate_fig4.py      # German Credit comparison (Figure 4)
-python figures/generate_fig5.py      # Example case workflow (Figure 5)
-```
+## 11. License
 
-**Note:** Figures 1 and 5 are schematic diagrams; the provided scripts produce basic outlines. For publication‑quality images, we recommend refining them with vector graphics software (e.g., Adobe Illustrator, Inkscape). The data‑driven Figures 2–4 are generated directly from experimental results.
-
-## License
-
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
-
-## Citation
-
-If you use this code or data in your research, please cite our PLOS ONE paper:
-
-```
-Tian W, Wang Y. Translating Günther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI. PLoS ONE. 2026; … (in press).
-```
-
-BibTeX entry:
-
-```bibtex
-@article{tian2026anders,
-  title   = {Translating G{"u}nther Anders' Critical Theory into Algorithmic Fairness: A Simulation-Based Proof of Concept for Fairness-Enhanced Human-in-the-Loop AI},
-  author  = {Tian, Wenjun and Wang, Ying},
-  journal = {PLoS ONE},
-  year    = {2026},
-  note    = {in press}
-}
-```
-
-## Data Availability
-
-All datasets generated or analyzed during this study are included in this published article and its supplementary information files. The simulated agricultural dataset is created by the script `data/generate_agricultural_data.py`. The German Credit dataset is publicly available from the UCI Machine Learning Repository and is downloaded automatically by `data/download_german_credit.py`. The complete source code is archived in the following public repositories:
-
-- GitHub: [https://github.com/YingWang08/anders-fairness-hitl](https://github.com/YingWang08/anders-fairness-hitl)
-- Figshare: [https://doi.org/10.6084/m9.figshare.31742617](https://doi.org/10.6084/m9.figshare.31742617)
-
-## Contact
-
-For questions or issues, please contact Wenjun Tian at tianwenjunneu@outlook.com.
+MIT. If you use this code, please cite the manuscript.
