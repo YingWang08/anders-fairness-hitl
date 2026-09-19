@@ -1,15 +1,16 @@
 """
-run_credit_revised.py
-=====================
+run_credit_clean.py  (German Credit, 50 seeds; the R2/R3 credit entry point)
+============================================================================
 German Credit dataset experiments — Revised for PLOS ONE R2 submission.
 
-Key changes from run_credit_clean.py
+Key changes relative to the earlier (R1) version of this script
 --------------------------------------
 1. SHARED BASE MODEL: DebiasedHITL and FE-HITL receive predictions from the
    *same* trained MLP instance. All performance differences arise solely from
    post-processing correction strategies, not from different random initialisations.
 
-2. DEBIASED-HITL (reproduced from Zhang et al. 2021):
+2. 'DEBIASED-HITL' = fixed-ratio proportional post-processing baseline
+   (author-designed heuristic; the previously cited source could not be verified):
    Proportional boost/shrink with a fixed intervention ratio = 0.10.
    Operates separately on DI < 0.8 (boost unprivileged) and DI > 1.25 (shrink
    unprivileged), mimicking the original paper's post-processing design.
@@ -61,14 +62,14 @@ warnings.filterwarnings("ignore")
 #  CONFIGURATION
 # ──────────────────────────────────────────────────────────────
 QUICK_TEST   = False           # True = 3 seeds, for smoke-testing only
-SEEDS_FULL   = list(range(42, 92))   # 30 seeds
+SEEDS_FULL   = list(range(42, 92))   # 50 seeds (42-91)
 SEEDS_QUICK  = [42, 43, 44]
 
 # Fairness thresholds
 DI_LOWER     = 0.80            # 4/5 rule lower bound
 DI_UPPER     = 1.0 / DI_LOWER  # 1.25 — upper bound (symmetric)
 
-# Debiased-HITL fixed intervention ratio (Zhang et al. 2021)
+# 'Debiased-HITL' fixed-ratio baseline: intervention ratio (author-designed heuristic)
 DEBIAS_RATIO = 0.10
 
 # FE-HITL multi-option generation — candidate scaling factors (Algorithm 1)
@@ -155,7 +156,8 @@ def compute_all_metrics(y_true, y_pred, s):
 
 def debiased_hitl_correction(probs, s):
     """
-    Debiased-HITL post-processing (reproduced from Zhang et al. 2021).
+    'Debiased-HITL' post-processing: fixed-ratio proportional baseline
+    (author-designed heuristic; the previously cited source could not be verified).
 
     Strategy: proportional boost or shrink of the unprivileged group's
     predicted probabilities, using a fixed intervention ratio (DEBIAS_RATIO).
@@ -599,7 +601,9 @@ def run_kfold_cv(seeds, X_all, y_all, s_all, n_folds=5):
     Stratified 5-fold CV.  For each (fold, seed) combination:
       - ONE SharedMLP is trained per (fold, seed).
       - DL, Debiased-HITL, and FE-HITL all use that same model instance.
-    Total evaluations: 5 folds × 30 seeds = 150 per method.
+    Total evaluations: 5 folds × 50 seeds = 250 per method. ONE fixed partition
+    (random_state=42): the 250 fold-seed pairs are NOT independent observations;
+    see inference_fixed.py for appropriate inference.
     """
     print("\n" + "="*65)
     print(f"  5-FOLD CROSS-VALIDATION — {n_folds} folds × {len(seeds)} seeds")

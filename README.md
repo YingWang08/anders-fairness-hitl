@@ -42,8 +42,9 @@ rather than the deposited `experiments/revision_results/`. Run the experiment sc
 | 6 fairness and workload | Same-row reporting on the same 30 seeds, with the manuscript's assumptions (4 options × 3 s) and a sensitivity grid | `fairness_cost_joint.py` |
 | 7 citation, README, environment | Reference audit script; this README; pinned `requirements.txt`; torch made optional | `check_references.py`, `requirements.txt`, `src/utils.py` |
 
-`patches/` holds documentation-only corrections for the two R2 scripts (docstrings and
-comments; executable code verified unchanged by AST comparison).
+Documentation-only corrections were made directly in the two R2 scripts (docstrings and
+comments, plus the printed run label "50 seeds"); the executable code is otherwise unchanged
+(verified by AST comparison against commit `fa79a9f`).
 
 ## 3. Entry points and seeds
 
