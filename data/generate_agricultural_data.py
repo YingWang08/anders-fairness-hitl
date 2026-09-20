@@ -1,3 +1,13 @@
+# ============================================================================
+# SUPERSEDED - NOT USED BY ANY REPORTED RESULT.
+# This is an earlier generator whose prediction target is the UNBIASED base
+# allocation (target = base + N(0, 1)). The data used in the manuscript are
+# generated in memory by generate_agricultural_data_biased(),
+# generate_agricultural_data_biased_v2() and generate_full_dataset() in
+# experiments/run_sensitivity_standalone.py, where
+# target = max(0.5 * base + 0.5 * historical_allocation + N(0, 2^2), 0).
+# Kept only for the history of the repository.
+# ============================================================================
 """
 generate_agricultural_data.py  (revised for W2 sensitivity analysis)
 =====================================================================

@@ -1,13 +1,14 @@
-# FE-HITL simulation code and data — R3 state (PLOS ONE PONE-D-26-12981)
+# FE-HITL simulation code and data — PLOS ONE PONE-D-26-12981 (R3)
 
-> **Result of record.** Every number in the R3 manuscript comes from (i) the R2
-> experiment scripts at commit `fa79a9f`, whose scientific implementation is
+> **Results of record.** Every number in the R3 manuscript and S1 Appendix comes from
+> (i) the R2 experiment scripts at commit `fa79a9f`, whose scientific implementation is
 > unchanged and which Reviewer #4 independently reproduced to < 1e-14, and (ii) the
-> read-only R3 additions below. `regen_stats.py` writes
-> `r3_tables/reviewer_number_check.csv` (17/17 values quoted by Reviewer #4
-> reproduced) and `r3_tables/MANIFEST.json` (input SHA-256 hashes, library versions,
-> conventions, seed sets). If the manuscript and `r3_tables/` disagree, `r3_tables/`
-> is correct.
+> read-only R3 additions below. All tables in the manuscript were filled from `r3_tables/`,
+> which `regen_stats.py`, `inference_fixed.py` and `fairness_cost_joint.py` regenerate from
+> the deposited raw CSVs. `r3_tables/reviewer_number_check.csv` shows the 17/17 values quoted
+> by Reviewer #4; `r3_tables/MANIFEST.json` records input SHA-256 hashes, library versions,
+> conventions and seed sets (its `git_commit` field, `acaba4d`, is the code state at
+> generation time; later commits change only documentation, the manifest and figures).
 
 ## 1. Quick start
 
@@ -24,6 +25,7 @@ python regen_stats.py                     # descriptive tables, agricultural tes
 python inference_fixed.py                 # German Credit inference: conditional vs generalization
 python fairness_cost_joint.py             # fairness + performance + workload on the same row
 python check_references.py --mailto you@example.org   # Crossref audit of the reference list (internet)
+python figures/figures_r3.py r3_tables figures/r3     # Figs 1-5 (TIFF, LZW, 300 dpi) from r3_tables/
 ```
 
 The R2 README said to run from the repository root, which writes to `./revision_results/`
@@ -41,6 +43,7 @@ rather than the deposited `experiments/revision_results/`. Run the experiment sc
 | 5 same-base control | FE-HITL vs the same uncorrected base model; decomposition of the R² cost vs DL | `table_same_base_agri.csv` |
 | 6 fairness and workload | Same-row reporting on the same 30 seeds, with the manuscript's assumptions (4 options × 3 s) and a sensitivity grid | `fairness_cost_joint.py` |
 | 7 citation, README, environment | Reference audit script; this README; pinned `requirements.txt`; torch made optional | `check_references.py`, `requirements.txt`, `src/utils.py` |
+| Figures | All five manuscript figures drawn by one script from `r3_tables/` (PLOS format: TIFF/LZW, RGB, 300 dpi, Arial, no titles in images) | `figures/figures_r3.py`, `figures/r3/` |
 
 Documentation-only corrections were made directly in the two R2 scripts (docstrings and
 comments, plus the printed run label "50 seeds"); the executable code is otherwise unchanged
@@ -62,16 +65,27 @@ comments, plus the printed run label "50 seeds"); the executable code is otherwi
 German Credit: `run_credit_clean.py`, seeds 42–91 (50), one 5-fold partition
 (`random_state=42`) × 50 training seeds, output `experiments/credit_revision_results/`.
 Agricultural seeds each draw a new synthetic dataset (independent replicates of the
-simulated process); German Credit seeds all resample the same 1,000 rows.
+simulated process); German Credit seeds all resample the same 1,000 rows (70/30 splits
+stratified by outcome).
+
+**Data-generating process.** The simulated data are generated in memory by
+`generate_agricultural_data_biased()` (main experiments), `generate_agricultural_data_biased_v2()`
+(bias structures) and `generate_full_dataset()` (cross-validation) in
+`experiments/run_sensitivity_standalone.py`. Region is not a model input; the biased
+historical allocation is. The target is `max(0.5*base + 0.5*historical + N(0, 2^2), 0)`, so it
+retains about half of the injected penalty (S1 Appendix, Section 2).
+`data/generate_agricultural_data.py` is an earlier generator with a different target and is
+not used.
 
 ## 4. Environment
 
-`requirements.txt` pins the versions with which the agricultural pipeline was re-executed
-and matched the deposited CSVs (Python 3.12.3). The original runs used Python 3.14.
-`statsmodels` is a direct dependency. `torch` is not needed: `src/utils.py` and
-`src/models/baseline_dl.py` now import it optionally (it was only seeded, never used).
-Figures need `matplotlib`.
-`requirements-lock.txt` is the exact environment (Python 3.14.3) in which all results were generated and re-verified.
+The results of record were generated with Python 3.14.3; `requirements-lock.txt` is the full
+pip freeze of that environment. `requirements.txt` pins the direct dependencies; with these
+pins, `experiments/run_r3_additions.py` and the three statistics scripts were re-executed on
+Linux with Python 3.12.3 and reproduced every deposited value (maximum absolute difference
+< 1e-12). `statsmodels` is a direct dependency. `torch` is not needed (imported optionally,
+never used). `run_credit_clean.py` needs network access to openml.org; its R2 raw outputs are
+the results of record and were reproduced independently by Reviewer #4 at commit `fa79a9f`.
 
 ## 5. Statistical conventions
 
@@ -85,6 +99,12 @@ Figures need `matplotlib`.
   (B1)/(B2) Nadeau–Bengio corrected resampled t (variance factor 1/J + n_test/n_train),
   because resampled splits of one dataset overlap (5-fold training sets share 75 % of
   rows). None of these analyses supports claims about other populations or domains.
+- The same corrected test is applied to the five fold means of the agricultural
+  cross-validation (`r3_tables/agri_cv_inference.csv`).
+- DI is undefined when no privileged-group case receives the positive prediction; the code
+  then records DI = 1. This happened only in 4 of the 250 German Credit CV evaluations
+  (degenerate networks predicting almost no bad risks), identically for all three methods,
+  so paired contrasts are unaffected.
 
 ## 6. Algorithm 1: what is enforced and what the executed code does
 
@@ -131,17 +151,29 @@ per routed case, 3 s per option); nothing is generated per case or timed.
 - "Debiased-HITL" is an author-designed fixed-ratio proportional baseline; the previously
   cited source could not be verified.
 
-## 10. Superseded or unused files
+## 10. Known implementation details (documented, not changed)
+
+- Agricultural CV: `run_kfold_cv()` passes the training fold as the DL baseline's validation
+  data (`dl.fit(Xt, yt, Xt, yt)`), so its internal early-stopping split contains duplicated
+  training rows. This affects only the DL row of manuscript Table 2.
+- Algorithm 1 as implemented in `src/fe_hitl_r3.py` computes the efficiency loss on the
+  validation split; in the 50 CV runs (no validation split) it uses the training fold.
+- The FRP shrink factor for German Credit is floored at 0.5; the floor is never reached.
+
+## 11. Superseded or unused files
 
 Not used by any reported result: `experiments/run_agricultural.py`, `run_ablation.py`,
 `run_credit.py`, `run_german_credit.py` (older 30-seed credit run), `run_sensitivity.py`,
 `run_statistical.py`, `run_stats_supplement.py`; top-level CSV/TXT files in
 `experiments/`; `experiments/results/`; `experiments/revision_results/stats/` (older
 statistics from an earlier run, e.g. DL DI 0.6543); `src/models/fe_hitl.py`,
-`src/models/debiased_hitl.py`, `src/human_simulator.py`, `src/data_loader.py`;
-`data/*.csv` (experiments generate data in memory). `.gitignore.txt` is not a valid
-ignore file name (rename to `.gitignore`); this is why `.idea/` and `__pycache__/` were committed.
+`src/models/debiased_hitl.py`, `src/human_simulator.py`, `src/data_loader.py`, `merge_csv.py`;
+`data/generate_agricultural_data.py` and `data/*.csv` (first-submission generator and outputs;
+see `data/README.md`). Removed in the final R3 commit: the initial-submission
+`appendix/S1_Appendix.md` (superseded by the S1 Appendix published with the article), the R2
+figure images and `figures/figures_all.py` (superseded by `figures/figures_r3.py`), and the
+IDE and bytecode files; `.gitignore.txt` was renamed to `.gitignore`.
 
-## 11. License
+## 12. License
 
-MIT. If you use this code, please cite the manuscript.
+MIT. If you use this code, please cite the article.

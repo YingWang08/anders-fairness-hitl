@@ -1,3 +1,6 @@
+# Full environment (pip freeze) in which the results of record were generated
+# (Python 3.14.3). Several packages are not used by the reported pipeline;
+# the direct dependencies are pinned in requirements.txt.
 certifi==2026.2.25
 charset-normalizer==3.4.5
 cloudpickle==3.1.2
