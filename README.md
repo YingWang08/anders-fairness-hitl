@@ -25,7 +25,8 @@ python regen_stats.py                     # descriptive tables, agricultural tes
 python inference_fixed.py                 # German Credit inference: conditional vs generalization
 python fairness_cost_joint.py             # fairness + performance + workload on the same row
 python check_references.py --mailto you@example.org   # Crossref audit of the reference list (internet)
-python figures/figures_r3.py r3_tables figures/r3     # Figs 1-5 (TIFF, LZW, 300 dpi) from r3_tables/
+python figures/check_figures.py                       # Figs 1-5: regenerate in a temporary folder, compare with figures/r3/
+python figures/figures_r3.py r3_tables figures/regenerated   # Figs 1-5 (TIFF, LZW, 300 dpi) from r3_tables/
 ```
 
 The R2 README said to run from the repository root, which writes to `./revision_results/`
@@ -43,11 +44,30 @@ rather than the deposited `experiments/revision_results/`. Run the experiment sc
 | 5 same-base control | FE-HITL vs the same uncorrected base model; decomposition of the R² cost vs DL | `table_same_base_agri.csv` |
 | 6 fairness and workload | Same-row reporting on the same 30 seeds, with the manuscript's assumptions (4 options × 3 s) and a sensitivity grid | `fairness_cost_joint.py` |
 | 7 citation, README, environment | Reference audit script; this README; pinned `requirements.txt`; torch made optional | `check_references.py`, `requirements.txt`, `src/utils.py` |
-| Figures | All five manuscript figures drawn by one script from `r3_tables/` (PLOS format: TIFF/LZW, RGB, 300 dpi, Arial, no titles in images) | `figures/figures_r3.py`, `figures/r3/` |
+| Figures | All five manuscript figures drawn by one script from `r3_tables/` (PLOS format: TIFF/LZW, RGB, 300 dpi, Arial or its metric-compatible substitute Liberation Sans, no titles in images) | `figures/figures_r3.py`, `figures/r3/` |
 
 Documentation-only corrections were made directly in the two R2 scripts (docstrings and
 comments, plus the printed run label "50 seeds"); the executable code is otherwise unchanged
 (verified by AST comparison against commit `fa79a9f`).
+
+### Figure files (updated in R4)
+
+`figures/r3/Fig1.tif`–`Fig5.tif` are the figure files submitted with the article
+(`figures/r3/Fig*.png` are previews). All five were drawn by `figures/figures_r3.py` from
+`r3_tables/`; the only statistical annotation (Fig 2: FE-HITL − DL on DI, Δ = +0.232,
+adjusted p < 0.001) is the contrast reported in the Results. `python figures/check_figures.py`
+regenerates the figures in a temporary folder and compares them pixel by pixel with the
+deposited files. The deposited files were rendered with matplotlib 3.10.8, pillow 12.1.1
+and Liberation Sans 2.1.5 (a metric-compatible substitute for Arial); with these versions
+all five are reproduced identically. When Arial is installed, `figures_r3.py` uses it
+instead, and the regenerated text then differs slightly in glyph shape.
+
+Until R4, the commit cited in the manuscript (`1384e99`, release V3.0) still contained the
+R2 plotting script `figures/figures_all.py`, which drew hand-entered values together with
+statistics that were withdrawn in R3; `figures_r3.py` had not been committed. R4 adds the
+R3 figure commit (`5ede506`), removes the last R2 figure image
+(`figures/fig5_workflow.png`) and adds `figures/check_figures.py`. No analysis code, raw
+result or table changed, and the figures are those submitted with R3.
 
 ## 3. Entry points and seeds
 
@@ -171,7 +191,8 @@ statistics from an earlier run, e.g. DL DI 0.6543); `src/models/fe_hitl.py`,
 `data/generate_agricultural_data.py` and `data/*.csv` (first-submission generator and outputs;
 see `data/README.md`). Removed in the final R3 commit: the initial-submission
 `appendix/S1_Appendix.md` (superseded by the S1 Appendix published with the article), the R2
-figure images and `figures/figures_all.py` (superseded by `figures/figures_r3.py`), and the
+figure images (the last one, `figures/fig5_workflow.png`, in R4) and `figures/figures_all.py`
+(superseded by `figures/figures_r3.py`), and the
 IDE and bytecode files; `.gitignore.txt` was renamed to `.gitignore`.
 
 ## 12. License
